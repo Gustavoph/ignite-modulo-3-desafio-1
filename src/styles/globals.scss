@@ -1,7 +1,36 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-// TODO
+:root {
+  --white: #FFFFFF;
+  --pink-500: #FF57B2;
+  --gray-100: #F8F8F8;
+  --gray-300: #BBBBBB;
+  --gray-200: #D7D7D7;
+  --black-700: #1A1D23;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  background: var(--black-700);
+  color: var(--white);
+}
+
+body, input, textarea, select, button {
+  font: 400 1rem 'Inter', sans-serif
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

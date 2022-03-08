@@ -22,7 +22,7 @@
   [] Gerar Paginas de posts com GetStaticPaths
 
 - components
-  [] Header
-  [] Header.module.scss - estilo do componente
-  [] Styles/global.scss
+  [x] Header
+  [x] Header.module.scss - estilo do componente
+  [x] Styles/global.scss
   [] Styles/commom.module.scss

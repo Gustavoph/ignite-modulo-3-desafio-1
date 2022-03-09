@@ -1,10 +1,11 @@
 import { GetStaticProps } from 'next';
+import Link from 'next/link';
 
-import { FiCalendar, FiUser } from 'react-icons/fi';
 import Prismic from '@prismicio/client';
+import { FiCalendar, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
 
-import commonStyles from '../styles/common.module.scss';
+// import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
 
 interface Post {
@@ -27,54 +28,36 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
-  console.log(postsPagination);
+  const { results, next_page } = postsPagination;
 
   return (
     <div className={styles.homeContainer}>
       <img src="/images/logo.svg" alt="Logo Spacetraveling" />
 
-      <section className={styles.postSection}>
-        <h1>Como utilizar Hooks</h1>
-        <p>Pensando em sincronização em vez de ciclos de vida.</p>
-        <div>
-          <span>
-            <FiCalendar fontSize="2rem" /> <p>15 Mar 2021</p>
-            <FiUser fontSize="2rem" className={styles.space} />
-            <p>Joseph Oliveira</p>
-          </span>
-        </div>
-      </section>
+      {results.map(post => (
+        <section className={styles.postSection} key={post.uid}>
+          <Link href={`/post/${post.uid}`} passHref>
+            <a>
+              <h1>{post.data.title}</h1>
+              <p>{post.data.subtitle}</p>
+              <div>
+                <span>
+                  <FiCalendar fontSize="2rem" />
+                  <p>{post.first_publication_date}</p>
+                  <FiUser fontSize="2rem" className={styles.space} />
+                  <p>{post.data.author}</p>
+                </span>
+              </div>
+            </a>
+          </Link>
+        </section>
+      ))}
 
-      <section className={styles.postSection}>
-        <h1>Criando um app CRA do zero</h1>
-        <p>
-          Tudo sobre como criar a sua primeira aplicação utilizando Create React
-          App.
-        </p>
-        <div>
-          <span>
-            <FiCalendar fontSize="2rem" /> <p>19 Abr 2021</p>
-            <FiUser fontSize="2rem" className={styles.space} />
-            <p>Danilo Vieira</p>
-          </span>
-        </div>
-      </section>
-
-      <section className={styles.postSection}>
-        <h1>Como utilizar Hooks</h1>
-        <p>Pensando em sincronização em vez de ciclos de vida.</p>
-        <div>
-          <span>
-            <FiCalendar fontSize="2rem" /> <p>15 Mar 2021</p>
-            <FiUser fontSize="2rem" className={styles.space} />
-            <p>Joseph Oliveira</p>
-          </span>
-        </div>
-      </section>
-
-      <button type="button" className={styles.btnLoading}>
-        Carregar mais posts
-      </button>
+      {next_page && (
+        <button type="button" className={styles.btnLoading}>
+          Carregar mais posts
+        </button>
+      )}
     </div>
   );
 }
@@ -94,13 +77,31 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   );
 
+  const posts = postsResponse.results.map(post => {
+    return {
+      uid: post.uid,
+      data: {
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
+      },
+      first_publication_date: new Date(
+        post.last_publication_date
+      ).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+    };
+  });
+
   return {
     props: {
       postsPagination: {
-        results: postsResponse,
+        results: posts,
         next_page: postsResponse.next_page,
       },
     },
-    revalidate: 60 * 60 * 24, // 24 hours
+    revalidate: 60 * 60, // 1 hour
   };
 };

@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Header from '../../components/Header';
 
 import { getPrismicClient } from '../../services/prismic';
@@ -29,16 +30,26 @@ interface PostProps {
 
 export default function Post({ post }: PostProps): JSX.Element {
   return (
-    <>
+    <div className={styles.postContainer}>
       <Header />
+      <img
+        src={post.data.banner.url}
+        className={styles.banner}
+        alt="Imagem do post"
+      />
 
-      <img src={post.data.banner.url} alt="Imagem do post" />
-
-      <div>
+      <div className={styles.postContent}>
         <h1>{post.data.title}</h1>
-        <p>
-          {post.first_publication_date} - {post.data.author}
-        </p>
+        <div className={styles.info}>
+          <span>
+            <FiCalendar fontSize="2rem" />
+            <p>{post.first_publication_date}</p>
+            <FiUser fontSize="2rem" className={styles.space} />
+            <p>{post.data.author}</p>
+            <FiClock fontSize="2rem" className={styles.space} />
+            <p>4 min</p>
+          </span>
+        </div>
         {post.data.content.map(c => (
           <div key={c.heading}>
             <h3>{c.heading}</h3>
@@ -46,7 +57,7 @@ export default function Post({ post }: PostProps): JSX.Element {
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
 

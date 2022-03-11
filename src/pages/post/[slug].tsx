@@ -1,3 +1,6 @@
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
 import Header from '../../components/Header';
@@ -88,13 +91,13 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       author: response.data.author,
       content: [...contents],
     },
-    first_publication_date: new Date(
-      response.last_publication_date
-    ).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }),
+    first_publication_date: format(
+      new Date(response.last_publication_date),
+      'dd LLL YYY',
+      {
+        locale: ptBR,
+      }
+    ),
   };
 
   return {

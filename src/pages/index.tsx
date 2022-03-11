@@ -3,10 +3,12 @@ import Link from 'next/link';
 
 import Prismic from '@prismicio/client';
 import { FiCalendar, FiUser } from 'react-icons/fi';
+import { useEffect, useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 // import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { postFormater } from '../utils/postFormater';
 
 interface Post {
   uid?: string;
@@ -30,31 +32,54 @@ interface HomeProps {
 export default function Home({ postsPagination }: HomeProps): JSX.Element {
   const { results, next_page } = postsPagination;
 
+  const postsFormatados = postFormater({ posts: results });
+
+  const [posts, setPosts] = useState<Post[]>(postsFormatados);
+  const [page, setPage] = useState<string>(next_page);
+
+  async function loadingNextPage(): Promise<void> {
+    if (next_page) {
+      const newPosts = await fetch(`${next_page}`)
+        .then(response => response.json())
+        .then(data => data);
+
+      const newPostsFormatados = postFormater({ posts: newPosts.results });
+
+      setPosts([...posts, ...newPostsFormatados]);
+      setPage(newPosts.next_page);
+    }
+  }
+
   return (
     <div className={styles.homeContainer}>
       <img src="/images/logo.svg" alt="Logo Spacetraveling" />
 
-      {results.map(post => (
-        <section className={styles.postSection} key={post.uid}>
-          <Link href={`/post/${post.uid}`} passHref>
-            <a>
-              <h1>{post.data.title}</h1>
-              <p>{post.data.subtitle}</p>
-              <div>
-                <span>
-                  <FiCalendar fontSize="2rem" />
-                  <p>{post.first_publication_date}</p>
-                  <FiUser fontSize="2rem" className={styles.space} />
-                  <p>{post.data.author}</p>
-                </span>
-              </div>
-            </a>
-          </Link>
-        </section>
-      ))}
+      {posts &&
+        posts.map(post => (
+          <section className={styles.postSection} key={post.uid}>
+            <Link href={`/post/${post.uid}`} passHref>
+              <a>
+                <h1>{post.data.title}</h1>
+                <p>{post.data.subtitle}</p>
+                <div>
+                  <span>
+                    <FiCalendar fontSize="2rem" />
+                    <p>{post.first_publication_date}</p>
+                    <FiUser fontSize="2rem" className={styles.space} />
+                    <p>{post.data.author}</p>
+                  </span>
+                </div>
+              </a>
+            </Link>
+          </section>
+        ))}
 
-      {next_page && (
-        <button type="button" className={styles.btnLoading}>
+      {page && (
+        <button
+          type="button"
+          className={styles.btnLoading}
+          onClick={() => loadingNextPage()}
+        >
           Carregar mais posts
         </button>
       )}
@@ -77,28 +102,10 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   );
 
-  const posts = postsResponse.results.map(post => {
-    return {
-      uid: post.uid,
-      data: {
-        title: post.data.title,
-        subtitle: post.data.subtitle,
-        author: post.data.author,
-      },
-      first_publication_date: new Date(
-        post.last_publication_date
-      ).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      }),
-    };
-  });
-
   return {
     props: {
       postsPagination: {
-        results: posts,
+        results: postsResponse.results,
         next_page: postsResponse.next_page,
       },
     },

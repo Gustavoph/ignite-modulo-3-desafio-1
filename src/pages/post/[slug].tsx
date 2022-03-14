@@ -1,4 +1,7 @@
 /* eslint-disable react/no-danger */
+/* eslint-disable no-return-assign */
+/* eslint-disable no-param-reassign */
+
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 
@@ -37,26 +40,19 @@ interface PostProps {
 
 export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
-
   if (router.isFallback) {
     return <p>Carregando...</p>;
   }
 
-  const amountWordsOfBody = RichText.asText(
-    post.data.content.reduce((acc, data) => [...acc, ...data.body], [])
-  ).split(' ').length;
+  const countWords = post.data.content.reduce((total, content) => {
+    const words = content.body.map(
+      paragraph => paragraph.text.split(' ').length
+    );
+    words.map(word => (total += word));
+    return total;
+  }, 0);
 
-  const amountWordsOfHeading = post.data.content.reduce((acc, data) => {
-    if (data.heading) {
-      return [...acc, ...data.heading.split(' ')];
-    }
-
-    return [...acc];
-  }, []).length;
-
-  const readingTime = Math.ceil(
-    (amountWordsOfBody + amountWordsOfHeading) / 200
-  );
+  const readingTime = Math.ceil(countWords / 200);
 
   return (
     <div className={styles.postContainer}>
@@ -83,12 +79,12 @@ export default function Post({ post }: PostProps): JSX.Element {
             <p>{readingTime} min</p>
           </span>
         </div>
-        {post.data.content.map(content => (
-          <div key={content.heading}>
-            <h3>{content.heading}</h3>
+        {post.data.content.map(({ heading, body }) => (
+          <div key={heading}>
+            <h3>{heading}</h3>
             <div
               dangerouslySetInnerHTML={{
-                __html: RichText.asHtml(content.body),
+                __html: RichText.asHtml(body),
               }}
             />
           </div>
@@ -103,13 +99,14 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const posts = await prismic.query(
     [Prismic.predicates.at('document.type', 'posts')],
     {
-      pageSize: 2, // posts per page
+      pageSize: 2,
     }
   );
 
   const paths = posts.results.map(post => ({
     params: { slug: post.uid },
   }));
+
   return {
     paths,
     fallback: true,
@@ -120,25 +117,9 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', String(slug), {});
-
-  const contents = response.data.content.map(content => ({
-    heading: content.heading[0].text,
-    body: [...content.body],
-  }));
-
-  const post = {
-    data: {
-      title: response.data.title,
-      author: response.data.author,
-      banner: response.data.imagem,
-      content: [...contents],
-    },
-    first_publication_date: response.last_publication_date,
-  };
-
   return {
     props: {
-      post,
+      post: response,
     },
   };
 };

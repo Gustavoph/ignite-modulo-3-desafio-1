@@ -19,7 +19,7 @@ interface Post {
     };
     author: string;
     content: {
-      heading: string;
+      heading: { text: string }[];
       body: Record<string, unknown>[];
     }[];
   };

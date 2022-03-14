@@ -1,9 +1,12 @@
-import { GetStaticProps } from 'next';
 import Link from 'next/link';
+import { GetStaticProps } from 'next';
 
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+
+import { useState } from 'react';
 import Prismic from '@prismicio/client';
 import { FiCalendar, FiUser } from 'react-icons/fi';
-import { useEffect, useState } from 'react';
 import { getPrismicClient } from '../services/prismic';
 
 // import commonStyles from '../styles/common.module.scss';
@@ -64,7 +67,15 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
                 <div>
                   <span>
                     <FiCalendar fontSize="2rem" />
-                    <p>{post.first_publication_date}</p>
+                    <p>
+                      {format(
+                        new Date(post.first_publication_date),
+                        'dd MMM yyyy',
+                        {
+                          locale: ptBR,
+                        }
+                      )}
+                    </p>
                     <FiUser fontSize="2rem" className={styles.space} />
                     <p>{post.data.author}</p>
                   </span>

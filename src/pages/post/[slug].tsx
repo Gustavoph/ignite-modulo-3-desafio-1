@@ -2,15 +2,16 @@
 /* eslint-disable no-return-assign */
 /* eslint-disable no-param-reassign */
 
-import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
-
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { useRouter } from 'next/router';
 import { RichText } from 'prismic-dom';
+import { useRouter } from 'next/router';
 import Prismic from '@prismicio/client';
+
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
+import UtteranceComment from '../../components/UtteranceComment';
+
 import Header from '../../components/Header';
+import { dateFormater, counterWords } from '../../utils';
 
 import { getPrismicClient } from '../../services/prismic';
 
@@ -44,15 +45,7 @@ export default function Post({ post }: PostProps): JSX.Element {
     return <p>Carregando...</p>;
   }
 
-  const countWords = post.data.content.reduce((total, content) => {
-    const words = content.body.map(
-      paragraph => paragraph.text.split(' ').length
-    );
-    words.map(word => (total += word));
-    return total;
-  }, 0);
-
-  const readingTime = Math.ceil(countWords / 200);
+  const readingTime = counterWords({ content: post.data.content });
 
   return (
     <div className={styles.postContainer}>
@@ -68,11 +61,7 @@ export default function Post({ post }: PostProps): JSX.Element {
         <div className={styles.info}>
           <span>
             <FiCalendar fontSize="2rem" />
-            <p>
-              {format(new Date(post.first_publication_date), 'dd LLL YYY', {
-                locale: ptBR,
-              })}
-            </p>
+            <p>{dateFormater(post.first_publication_date)}</p>
             <FiUser fontSize="2rem" className={styles.space} />
             <p>{post.data.author}</p>
             <FiClock fontSize="2rem" className={styles.space} />
@@ -89,6 +78,10 @@ export default function Post({ post }: PostProps): JSX.Element {
             />
           </div>
         ))}
+
+        <div>
+          <UtteranceComment />
+        </div>
       </div>
     </div>
   );
@@ -117,6 +110,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
   const prismic = getPrismicClient();
   const response = await prismic.getByUID('posts', String(slug), {});
+
   return {
     props: {
       post: response,

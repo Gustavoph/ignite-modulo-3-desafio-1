@@ -32,7 +32,7 @@
     span {
       display: flex;
       align-items: center;
-      margin-bottom: 6.4rem;
+      margin-bottom: 1.6rem;
 
       p {
         margin: 0;
@@ -46,5 +46,77 @@
         margin-left: 2.4rem;
       }
     }
+  }
+
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6rem;
+
+  .prev {
+    p {
+      text-align: left;
+      margin-bottom: .8rem;
+    }
+
+    p:last-child {
+      font-weight: bold;
+      color: var(--pink-500);
+    }
+
+    transition: filter .2s;
+
+    &:hover {
+      filter: brightness(.5);
+    }
+  }
+  .next {
+    p {
+      text-align: right;
+      margin-bottom: .8rem;
+    }
+    p:last-child {
+      font-weight: bold;
+      color: var(--pink-500);
+    }
+
+    transition: filter .2s;
+
+    &:hover {
+      filter: brightness(.5);
+    }
+  }
+}
+
+.divider {
+  margin: 6rem 0  4.8rem 0 ;
+  border: .1rem solid var(--gray-200);
+  filter: brightness(.2);
+}
+
+.editadoEm {
+  font-size: 1.4rem !important;
+  font-style: italic;
+  margin-bottom: 6rem !important;
+}
+
+.previewContainer {
+  width: 100%;
+  height: 5.8rem;
+  margin-bottom: 8rem;
+  border-radius: .4rem;
+  background-color: var(--white);
+
+  a {
+    height:100%;
+    display: flex;
+    font-weight: 600;
+    font-size: 1.8rem;
+    color: var(--black);
+    margin-top: 8.8rem;
+    align-items: center;
+    justify-content: center;
   }
 }

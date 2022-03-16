@@ -8,7 +8,8 @@ import { useRouter } from 'next/router';
 import Prismic from '@prismicio/client';
 
 import { FiCalendar, FiClock, FiUser } from 'react-icons/fi';
-import UtteranceComment from '../../components/UtteranceComment';
+import Link from 'next/link';
+import UtteranceComments from '../../components/UtteranceComment';
 
 import Header from '../../components/Header';
 import { dateFormater, counterWords } from '../../utils';
@@ -20,6 +21,7 @@ import styles from './post.module.scss';
 
 interface Post {
   first_publication_date: string | null;
+  last_publication_date: string | null;
   data: {
     title: string;
     banner: {
@@ -68,6 +70,9 @@ export default function Post({ post }: PostProps): JSX.Element {
             <p>{readingTime} min</p>
           </span>
         </div>
+        <p className={styles.editadoEm}>
+          * editado em {dateFormater(post.last_publication_date, 1)}
+        </p>
         {post.data.content.map(({ heading, body }) => (
           <div key={heading}>
             <h3>{heading}</h3>
@@ -79,9 +84,26 @@ export default function Post({ post }: PostProps): JSX.Element {
           </div>
         ))}
 
-        <div>
-          <UtteranceComment />
+        <div className={styles.divider} />
+
+        <div className={styles.paginationContainer}>
+          <div className={styles.prev}>
+            <p>Como utilizar Hooks</p>
+            <p>Post anterior</p>
+          </div>
+          <div className={styles.next}>
+            <p>Como utilizar Hooks</p>
+            <p>Post anterior</p>
+          </div>
         </div>
+
+        <UtteranceComments />
+
+        <aside className={styles.previewContainer}>
+          <Link href="/api/exit-preview">
+            <a>Sair do modo Preview</a>
+          </Link>
+        </aside>
       </div>
     </div>
   );

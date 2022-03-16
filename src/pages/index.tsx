@@ -125,6 +125,7 @@ export const getStaticProps: GetStaticProps = async ({
         'posts.subtitle',
       ],
       pageSize: 2,
+      ref: previewData?.ref ?? null,
     }
   );
 
@@ -133,6 +134,7 @@ export const getStaticProps: GetStaticProps = async ({
       postsPagination: {
         results: postsResponse.results,
         next_page: postsResponse.next_page,
+        preview,
       },
     },
     revalidate: 60 * 60, // 1 hour
